@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Трекер питания</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="site-header">
+    <div class="site-logo">Трекер питания</div>
+    <nav class="site-nav" id="main-nav" hidden>
+        <button class="nav-link user-nav" data-screen="screen-diary" onclick="openDiary()">Дневник</button>
+        <button class="nav-link user-nav" data-screen="screen-stats" onclick="showScreen('screen-stats')">Статистика</button>
+        <button class="nav-link user-nav" data-screen="screen-profile" onclick="showScreen('screen-profile')">Профиль</button>
+        <button class="nav-link admin-nav" data-screen="screen-admin" onclick="showScreen('screen-admin')" hidden>Управление продуктами</button>
+    </nav>
+</header>
+
+<main class="site-main">
+
+    <div class="screen active" id="screen-login">
+        <div class="centered-form">
+            <h1>Вход</h1>
+            <p class="subtitle">Войдите в свой аккаунт</p>
+
+            <div class="input-group">
+                <label for="login-username">Имя пользователя</label>
+                <input type="text" id="login-username" placeholder="Введите имя" autocomplete="username">
+            </div>
+
+            <div class="input-group">
+                <label for="login-password">Пароль</label>
+                <input type="password" id="login-password" placeholder="Введите пароль" autocomplete="current-password">
+            </div>
+
+            <div id="login-error" class="error-message"></div>
+
+            <button class="btn btn-primary btn-block mt-8" onclick="login()">Войти</button>
+
+            <p class="text-center mt-24" style="font-size:14px; color:#6b7280;">
+                Нет аккаунта?
+                <span class="link" onclick="showScreen('screen-register')">Зарегистрироваться</span>
+            </p>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-register">
+        <div class="centered-form">
+            <button class="back-arrow" onclick="showScreen('screen-login')"></button>
+            <h1>Регистрация</h1>
+            <p class="subtitle">Создайте новый аккаунт</p>
+
+            <div class="input-group">
+                <label for="reg-username">Имя</label>
+                <input type="text" id="reg-username" placeholder="Введите имя" autocomplete="username">
+            </div>
+
+            <div class="input-group">
+                <label for="reg-password">Пароль</label>
+                <input type="password" id="reg-password" placeholder="Введите пароль" autocomplete="new-password">
+            </div>
+
+            <div class="input-group">
+                <label for="reg-confirm">Повтор пароля</label>
+                <input type="password" id="reg-confirm" placeholder="Повторите пароль" autocomplete="new-password">
+            </div>
+
+            <div id="register-error" class="error-message"></div>
+
+            <button class="btn btn-primary btn-block mt-8" onclick="register()">Зарегистрироваться</button>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-profile-setup">
+        <div class="centered-form">
+            <button class="back-arrow" onclick="logout()"></button>
+            <h1>Настройка профиля</h1>
+            <p class="subtitle">Заполните данные для расчёта нормы</p>
+
+            <div class="form-grid">
+                <div class="input-group full-width">
+                    <label>Пол</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="gender" value="male" checked> Мужской</label>
+                        <label class="radio-item"><input type="radio" name="gender" value="female"> Женский</label>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="setup-age">Возраст</label>
+                    <input type="number" id="setup-age" placeholder="Ваш возраст" min="10" max="100">
+                </div>
+
+                <div class="input-group">
+                    <label for="setup-weight">Вес (кг)</label>
+                    <input type="number" id="setup-weight" placeholder="Ваш вес" step="0.1" min="20" max="400">
+                </div>
+
+                <div class="input-group">
+                    <label for="setup-height">Рост (см)</label>
+                    <input type="number" id="setup-height" placeholder="Ваш рост" step="0.1" min="80" max="250">
+                </div>
+
+                <div class="input-group">
+                    <label>Активность</label>
+                    <div class="radio-group vertical">
+                        <label class="radio-item"><input type="radio" name="activity" value="low"> Низкая</label>
+                        <label class="radio-item"><input type="radio" name="activity" value="medium" checked> Средняя</label>
+                        <label class="radio-item"><input type="radio" name="activity" value="high"> Высокая</label>
+                    </div>
+                </div>
+
+                <div class="input-group full-width">
+                    <label>Цель</label>
+                    <div class="radio-group">
+                        <label class="radio-item"><input type="radio" name="goal" value="lose"> Похудение</label>
+                        <label class="radio-item"><input type="radio" name="goal" value="maintain" checked> Поддержание</label>
+                        <label class="radio-item"><input type="radio" name="goal" value="gain"> Набор массы</label>
+                    </div>
+                </div>
+            </div>
+
+            <div id="setup-error" class="error-message"></div>
+
+            <button class="btn btn-primary btn-block mt-8" onclick="saveProfile()">Рассчитать норму</button>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-diary">
+        <div class="flex justify-between items-center mb-16">
+            <h1>Дневник</h1>
+            <span style="font-size:15px; color:#6b7280;" id="diary-date"></span>
+        </div>
+
+        <div class="card" style="background: linear-gradient(135deg, #6c63ff 0%, #8b83ff 100%); color:#fff; border:none;">
+            <div class="card-title" id="remaining-title" style="color:rgba(255,255,255,0.8);"></div>
+            <div class="card-value" id="remaining-value" style="color:#fff; font-size:36px;"></div>
+            <div class="card-sub" id="remaining-macros" style="color:rgba(255,255,255,0.7);"></div>
+        </div>
+
+        <div class="meals-grid" id="meals-grid"></div>
+
+        <div class="flex gap-12" style="flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="showScreen('screen-search')">+ Добавить продукт</button>
+            <button class="btn btn-secondary" onclick="showScreen('screen-history')">История питания</button>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-search">
+        <button class="back-arrow" onclick="showScreen('screen-diary')"></button>
+        <h1>Поиск продукта</h1>
+        <p class="subtitle">Найдите продукт во встроенной базе</p>
+
+        <div class="input-group" style="max-width:600px;">
+            <input type="text" id="search-input" placeholder="Поиск продукта..." style="font-size:16px; padding:16px;">
+        </div>
+
+        <p style="font-size:15px; color:#6b7280; margin-bottom:12px;">Результаты:</p>
+
+        <div class="product-list" id="search-results" style="max-width:600px;"></div>
+    </div>
+
+    <div class="screen" id="screen-portion">
+        <button class="back-arrow" onclick="closePortion()"></button>
+        <h1 id="portion-title">Порция</h1>
+        <p class="subtitle" id="portion-subtitle"></p>
+
+        <div style="max-width:600px;">
+            <div class="input-group">
+                <label for="portion-grams">Порция (г)</label>
+                <input type="number" id="portion-grams" placeholder="Например, 150" value="100" min="1" max="5000" step="1" oninput="updatePreview()">
+            </div>
+
+            <div class="input-group">
+                <label>Приём пищи</label>
+                <div class="radio-group vertical">
+                    <label class="radio-item"><input type="radio" name="meal" value="breakfast" checked> Завтрак</label>
+                    <label class="radio-item"><input type="radio" name="meal" value="lunch"> Обед</label>
+                    <label class="radio-item"><input type="radio" name="meal" value="dinner"> Ужин</label>
+                    <label class="radio-item"><input type="radio" name="meal" value="snack"> Перекус</label>
+                </div>
+            </div>
+
+            <div class="card" style="background:#f0efff; border-color:#6c63ff;">
+                <div class="card-title" style="color:#6c63ff;">Итого</div>
+                <div class="card-value" id="preview-kcal" style="font-size:22px;"></div>
+                <div class="card-sub" id="preview-macros"></div>
+            </div>
+
+            <button class="btn btn-primary btn-block mt-8" onclick="saveEntry()">Добавить</button>
+            <button class="btn btn-danger btn-block mt-8" id="delete-entry-btn" onclick="deleteEntry()" hidden>Удалить запись</button>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-stats">
+        <h1>Статистика</h1>
+        <p class="subtitle">Анализ вашего рациона</p>
+
+        <div class="period-selector">
+            <button class="period-btn active" data-days="1" onclick="loadStats(1)">День</button>
+            <button class="period-btn" data-days="7" onclick="loadStats(7)">Неделя</button>
+            <button class="period-btn" data-days="30" onclick="loadStats(30)">Месяц</button>
+        </div>
+
+        <div class="chart-container">
+            <canvas id="stats-chart"></canvas>
+        </div>
+
+        <div class="meals-grid">
+            <div class="card">
+                <div class="card-title">Средние показатели</div>
+                <div class="card-value" id="avg-kcal" style="font-size:20px;"></div>
+                <div class="card-sub" id="avg-macros"></div>
+            </div>
+
+            <div class="card" style="background:#fef3c7; border-color:#f59e0b;">
+                <div class="card-title" style="color:#b45309;">Обратная связь</div>
+                <div id="feedback" style="font-size:16px; color:#92400e;"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-profile">
+        <h1>Профиль</h1>
+        <p class="subtitle">Ваши данные и норма</p>
+
+        <div class="meals-grid">
+            <div class="card">
+                <div class="card-title">Личные данные</div>
+                <div id="profile-info" style="font-size:15px; color:#374151; line-height:2;"></div>
+            </div>
+
+            <div class="card" style="background:#f0efff; border-color:#6c63ff;">
+                <div class="card-title" style="color:#6c63ff;">Норма калорий и БЖУ</div>
+                <div class="card-value" id="norm-kcal" style="font-size:22px;"></div>
+                <div class="card-sub" id="norm-macros"></div>
+            </div>
+        </div>
+
+        <button class="btn btn-outline" onclick="editProfile()">Редактировать</button>
+        <button class="btn btn-danger mt-8" onclick="logout()">Выйти</button>
+    </div>
+
+    <div class="screen" id="screen-history">
+        <button class="back-arrow" onclick="showScreen('screen-diary')"></button>
+        <h1>История питания</h1>
+        <p class="subtitle">Просмотр рациона за прошлые дни</p>
+
+        <div style="max-width:600px;">
+            <div class="input-group">
+                <label for="history-date">Дата окончания</label>
+                <input type="date" id="history-date" onchange="loadHistory()">
+            </div>
+
+            <div class="product-list" id="history-list"></div>
+        </div>
+    </div>
+
+    <div class="screen" id="screen-admin">
+        <h1>Управление продуктами</h1>
+        <p class="subtitle">Добавляйте, редактируйте и удаляйте продукты</p>
+
+        <div class="card" style="max-width:800px;">
+            <div class="card-title" id="admin-form-title">Добавить новый продукт</div>
+
+            <div class="form-grid" style="margin-top:16px;">
+                <div class="input-group full-width">
+                    <label for="admin-name">Название</label>
+                    <input type="text" id="admin-name" placeholder="Например, Куриная грудка отварная">
+                </div>
+
+                <div class="input-group">
+                    <label for="admin-calories">Калории (ккал на 100 г)</label>
+                    <input type="number" id="admin-calories" step="0.1" min="0">
+                </div>
+
+                <div class="input-group">
+                    <label for="admin-proteins">Белки (г на 100 г)</label>
+                    <input type="number" id="admin-proteins" step="0.1" min="0">
+                </div>
+
+                <div class="input-group">
+                    <label for="admin-fats">Жиры (г на 100 г)</label>
+                    <input type="number" id="admin-fats" step="0.1" min="0">
+                </div>
+
+                <div class="input-group">
+                    <label for="admin-carbs">Углеводы (г на 100 г)</label>
+                    <input type="number" id="admin-carbs" step="0.1" min="0">
+                </div>
+            </div>
+
+            <div id="admin-error" class="error-message"></div>
+
+            <div class="flex gap-12" style="margin-top:16px;">
+                <button class="btn btn-primary" onclick="saveAdminProduct()">Сохранить</button>
+                <button class="btn btn-secondary" onclick="clearAdminForm()">Очистить форму</button>
+            </div>
+        </div>
+
+        <div style="max-width:800px; margin-top:24px;">
+            <div class="input-group">
+                <input type="text" id="admin-search" placeholder="Поиск по названию...">
+            </div>
+
+            <div class="product-list" id="admin-list"></div>
+        </div>
+
+        <button class="btn btn-danger" onclick="logout()" style="margin-top:24px;">Выйти</button>
+    </div>
+
+</main>
+
+<footer class="site-footer"></footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
